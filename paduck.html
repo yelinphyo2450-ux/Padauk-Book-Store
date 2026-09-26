@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <!-- ဖုန်း/စက်တိုင်းတွင် အချိုးအစားမှန်ကန်စေရန် Viewport ထည့်သွင်းထားခြင်း -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ပိတောက်စာအုပ်ဆိုင်</title>
+    
+    <!-- ICON များအတွက် -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @font-face {
+            font-family: 'KoZ 001 Uni';
+            src: url('001 - Copy.ttf') format('truetype');
+        }
+        
+        body {
+            background-color: #264A38;
+            margin: 0;
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif; 
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(227, 168, 36, 0.3);
+            padding: 40px 25px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%; 
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-container img {
+            width: 120px;
+            margin-bottom: 25px; /* စာသားမပါတော့သဖြင့် နေရာလွတ် ပြန်ချိန်ထားသည် */
+            border-radius: 20px;
+        }
+
+        p.subtitle {
+            color: #ffffff;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 35px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background-color: rgba(227, 168, 36, 0.08); 
+            color: #E3A824;
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(227, 168, 36, 0.6);
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .link-btn.primary-btn {
+            background-color: #E3A824;
+            color: #264A38;
+            border: none;
+            box-shadow: 0 4px 15px rgba(227, 168, 36, 0.3);
+        }
+
+        .link-btn i {
+            font-size: 20px;
+        }
+
+        /* Hover & Tap Effects */
+        .link-btn:hover, .link-btn:active {
+            background-color: #E3A824;
+            color: #264A38;
+            transform: scale(1.02);
+        }
+        
+        .ambient-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 0%, rgba(227, 168, 36, 0.15) 0%, rgba(38, 74, 56, 0) 60%);
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        
+        <div class="logo-container">
+            <img src="logo - Copy.png" alt="Padauk Logo">
+        </div>
+
+        <!-- ခေါင်းစဉ်စာသား ဖြုတ်လိုက်ပါပြီ -->
+        <p class="subtitle">ပိတောက်စာအုပ်ဆိုင်မှကြိုဆိုပါတယ်</p>
+
+        <div class="links-container">
+            
+            <!-- PHONE 1 (နှိပ်လိုက်တာနဲ့ ဖုန်းခေါ်မည့်နေရာသို့ ရောက်မည်) -->
+            <a href="tel:09768524550" class="link-btn primary-btn">
+                <i class="fa-solid fa-phone"></i> 09768524550
+            </a>
+
+            <!-- PHONE 2 -->
+            <a href="tel:" class="link-btn primary-btn">
+                <i class="fa-solid fa-phone"></i> ဖုန်းနံပါတ် (၂)
+            </a>
+
+            <!-- VIBER (နှိပ်လိုက်တာနဲ့ Viber App ထဲသို့ တိုက်ရိုက်ရောက်မည်) -->
+            <a href="viber://chat?number=+959768524550" class="link-btn">
+                <i class="fa-brands fa-viber"></i> Viber
+            </a>
+
+            <!-- TIKTOK (နှိပ်လိုက်တာနဲ့ TikTok App/Website သို့ ရောက်မည်) -->
+            <a href="https://www.tiktok.com/@your_username_here" class="link-btn">
+                <i class="fa-brands fa-tiktok"></i> TikTok
+            </a>
+
+            <!-- TELEGRAM (နှိပ်လိုက်တာနဲ့ Telegram App သို့ တိုက်ရိုက်ရောက်မည်) -->
+            <a href="https://t.me/your_username_here" class="link-btn">
+                <i class="fa-brands fa-telegram"></i> Telegram
+            </a>
+
+            <!-- FACEBOOK (နှိပ်လိုက်တာနဲ့ Facebook App/Messenger သို့ ရောက်မည်) -->
+            <a href="https://www.facebook.com/your_page_name" class="link-btn">
+                <i class="fa-brands fa-facebook-f"></i> Facebook
+            </a>
+
+        </div>
+    </div>
+
+</body>
+</html>
