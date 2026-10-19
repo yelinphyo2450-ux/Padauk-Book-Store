@@ -2,162 +2,699 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <!-- ဖုန်း/စက်တိုင်းတွင် အချိုးအစားမှန်ကန်စေရန် Viewport ထည့်သွင်းထားခြင်း -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ပိတောက်စာအုပ်ဆိုင်</title>
-    
-    <!-- ICON များအတွက် -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* မူရင်းချိတ်ဆက်ထားသော ဖောင့် */
         @font-face {
             font-family: 'KoZ 001 Uni';
             src: url('001 - Copy.ttf') format('truetype');
+            font-display: swap;
         }
-        
+
+        :root {
+            --bg-deep: #0d1f16;
+            --bg-emerald: #183526;
+            --gold-light: #f6e29c;
+            --gold-primary: #d4af37;
+            --gold-dark: #997415;
+            --ivory: #fdfaf1;
+            --card-bg: rgba(15, 34, 24, 0.82);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            background-color: #264A38;
+            background: radial-gradient(circle at 50% 0%, #244b37 0%, var(--bg-emerald) 45%, var(--bg-deep) 100%);
             margin: 0;
-            padding: 20px; 
+            padding: 28px 16px 40px 16px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             position: relative;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif; 
+            overflow-x: hidden;
+            font-family: 'KoZ 001 Uni', Georgia, serif;
+            color: var(--ivory);
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(227, 168, 36, 0.3);
-            padding: 40px 25px;
-            border-radius: 24px;
+        /* ပိတောက်ပွင့်ဖတ်နှင့် ရွှေမှုန်များ ဝဲပျံမည့် နောက်ခံ Canvas */
+        #padauk-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ဂန္ထဝင် စာအုပ်မျက်နှာဖုံးပုံစံ အဓိကဘောင် */
+        .classic-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            padding: 36px 24px 28px 24px;
+            border-radius: 16px;
             text-align: center;
-            max-width: 400px;
-            width: 100%; 
+            max-width: 440px;
+            width: 100%;
             z-index: 10;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.65), 
+                        inset 0 0 0 5px rgba(15, 34, 24, 0.9),
+                        inset 0 0 0 6px rgba(212, 175, 55, 0.25);
+            position: relative;
         }
 
-        .logo-container img {
-            width: 120px;
-            margin-bottom: 25px; /* စာသားမပါတော့သဖြင့် နေရာလွတ် ပြန်ချိန်ထားသည် */
-            border-radius: 20px;
+        /* ထောင့်လေးထောင့်ရှိ ရွှေရောင်ကနုတ်ပန်းများ */
+        .corner-ornament {
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+        .corner-tl { top: 10px; left: 10px; }
+        .corner-tr { top: 10px; right: 10px; transform: scaleX(-1); }
+        .corner-bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+        .corner-br { bottom: 10px; right: 10px; transform: scale(-1, -1); }
+
+        /* Logo ဘောင် */
+        .logo-frame {
+            position: relative;
+            display: inline-block;
+            padding: 6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-primary), var(--gold-dark));
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.25);
+            margin-bottom: 14px;
         }
 
-        p.subtitle {
-            color: #ffffff;
-            font-size: 16px;
-            margin-top: 0;
-            margin-bottom: 35px;
-            opacity: 0.95;
-            font-weight: 300;
+        .logo-frame img {
+            width: 108px;
+            height: 108px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--bg-deep);
+            display: block;
+            background-color: var(--ivory);
         }
 
-        .links-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        /* နှုတ်ခွန်းဆက် စာသား */
+        .subtitle {
+            color: var(--gold-light);
+            font-size: 18px;
+            margin: 4px 0 8px 0;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+            line-height: 1.6;
         }
 
-        .link-btn {
+        /* ဂန္ထဝင် မျဉ်းပြတ် (Ornamental Divider) */
+        .classic-divider {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            background-color: rgba(227, 168, 36, 0.08); 
-            color: #E3A824;
+            margin: 10px auto 22px auto;
+            width: 80%;
+        }
+
+        .classic-divider::before,
+        .classic-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+        }
+
+        .divider-gem {
+            color: var(--gold-primary);
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        /* ကဏ္ဍအလိုက် ခေါင်းစဉ်ငယ်များ */
+        .section-label {
+            font-size: 12.5px;
+            color: rgba(246, 226, 156, 0.75);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin: 18px 0 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .section-label:first-of-type {
+            margin-top: 0;
+        }
+        .section-label::before,
+        .section-label::after {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: rgba(212, 175, 55, 0.35);
+        }
+
+        /* ခလုတ်များ စီစဉ်ပုံ */
+        .links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* ဂန္ထဝင် ခလုတ်ဒီဇိုင်း (Luxury Button) */
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
             text-decoration: none;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(227, 168, 36, 0.6);
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: linear-gradient(145deg, rgba(28, 59, 43, 0.9), rgba(16, 36, 26, 0.95));
+            color: var(--ivory);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .link-btn.primary-btn {
-            background-color: #E3A824;
-            color: #264A38;
-            border: none;
-            box-shadow: 0 4px 15px rgba(227, 168, 36, 0.3);
-        }
-
-        .link-btn i {
-            font-size: 20px;
-        }
-
-        /* Hover & Tap Effects */
-        .link-btn:hover, .link-btn:active {
-            background-color: #E3A824;
-            color: #264A38;
-            transform: scale(1.02);
-        }
-        
-        .ambient-glow {
+        /* ရွှေရောင်အလင်းပြေး Effect */
+        .link-btn::before {
+            content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 50% 0%, rgba(227, 168, 36, 0.15) 0%, rgba(38, 74, 56, 0) 60%);
             top: 0;
-            left: 0;
-            z-index: 1;
-            pointer-events: none;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(246, 226, 156, 0.18), transparent);
+            transform: skewX(-25deg);
+            transition: left 0.6s ease;
+        }
+
+        .link-btn:hover::before,
+        .link-btn:active::before {
+            left: 130%;
+        }
+
+        .link-btn:hover,
+        .link-btn:active {
+            transform: translateY(-2px);
+            border-color: var(--gold-light);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 12px rgba(212, 175, 55, 0.25);
+            color: var(--gold-light);
+        }
+
+        /* ဖုန်းခေါ်ဆိုရန် အဓိက ရွှေရောင်ခလုတ် */
+        .link-btn.gold-primary {
+            background: linear-gradient(135deg, #f3dc90 0%, #d4af37 50%, #aa8010 100%);
+            color: #152218;
+            border: 1px solid #fff1be;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .link-btn.gold-primary:hover,
+        .link-btn.gold-primary:active {
+            filter: brightness(1.08);
+            color: #0b140e;
+        }
+
+        /* ခလုတ်အတွင်းပိုင်း အိုင်ကွန်နှင့် စာသား */
+        .btn-left {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .icon-frame {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 8px;
+            background: rgba(212, 175, 55, 0.14);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-light);
+            transition: all 0.3s ease;
+        }
+
+        .gold-primary .icon-frame {
+            background: rgba(15, 34, 24, 0.15);
+            border-color: rgba(15, 34, 24, 0.3);
+            color: #152218;
+        }
+
+        .link-btn:hover .icon-frame {
+            transform: scale(1.06);
+            border-color: var(--gold-light);
+        }
+
+        .icon-frame svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .btn-info {
+            text-align: left;
+            line-height: 1.3;
+            overflow: hidden;
+        }
+
+        .btn-title {
+            display: block;
+            font-size: 14.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-sub {
+            display: block;
+            font-size: 11.5px;
+            opacity: 0.78;
+            font-family: Arial, sans-serif;
+            margin-top: 1px;
+        }
+
+        .arrow-indicator {
+            font-size: 14px;
+            color: var(--gold-primary);
+            opacity: 0.7;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        .gold-primary .arrow-indicator {
+            color: #152218;
+        }
+
+        .link-btn:hover .arrow-indicator {
+            transform: translateX(3px);
+            opacity: 1;
+        }
+
+        /* ၂ ကော်လံ ခလုတ်များအတွက် အချိုးအစားညှိခြင်း */
+        .grid-2 .link-btn {
+            padding: 11px 11px;
+        }
+        .grid-2 .btn-left {
+            gap: 8px;
+        }
+        .grid-2 .icon-frame {
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+        }
+        .grid-2 .icon-frame svg {
+            width: 15px;
+            height: 15px;
+        }
+        .grid-2 .btn-title {
+            font-size: 13.5px;
+        }
+        .grid-2 .arrow-indicator {
+            display: none;
+        }
+
+        /* အောက်ခြေရှိ ဂန္ထဝင်စာအုပ်နှင့် ပိတောက်ခက် တံဆိပ် */
+        .classic-footer {
+            margin-top: 26px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.85;
+        }
+
+        .classic-footer svg {
+            width: 90px;
+            height: auto;
+        }
+
+        @media (max-width: 360px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .grid-2 .arrow-indicator {
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="ambient-glow"></div>
+    <!-- ပိတောက်ပွင့်ဖတ်နှင့် ရွှေမှုန်များ ဝဲပျံမည့် နောက်ခံ Canvas -->
+    <canvas id="padauk-canvas"></canvas>
 
-    <div class="container">
+    <div class="classic-card">
         
-        <div class="logo-container">
-            <img src="logo - Copy.png" alt="Padauk Logo">
+        <!-- ထောင့်လေးထောင့်ရှိ ရွှေရောင်ကနုတ်ပန်းများ -->
+        <svg class="corner-ornament corner-tl" viewBox="0 0 50 50" fill="none">
+            <path d="M2 48V12C2 6.477 6.477 2 12 2H48" stroke="#D4AF37" stroke-width="2"/>
+            <path d="M8 38V14C8 10.686 10.686 8 14 8H38" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="12" cy="12" r="3" fill="#D4AF37"/>
+        </svg>
+        <svg class="corner-ornament corner-tr" viewBox="0 0 50 50" fill="none">
+            <path d="M2 48V12C2 6.477 6.477 2 12 2H48" stroke="#D4AF37" stroke-width="2"/>
+            <path d="M8 38V14C8 10.686 10.686 8 14 8H38" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="12" cy="12" r="3" fill="#D4AF37"/>
+        </svg>
+        <svg class="corner-ornament corner-bl" viewBox="0 0 50 50" fill="none">
+            <path d="M2 48V12C2 6.477 6.477 2 12 2H48" stroke="#D4AF37" stroke-width="2"/>
+            <path d="M8 38V14C8 10.686 10.686 8 14 8H38" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="12" cy="12" r="3" fill="#D4AF37"/>
+        </svg>
+        <svg class="corner-ornament corner-br" viewBox="0 0 50 50" fill="none">
+            <path d="M2 48V12C2 6.477 6.477 2 12 2H48" stroke="#D4AF37" stroke-width="2"/>
+            <path d="M8 38V14C8 10.686 10.686 8 14 8H38" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="12" cy="12" r="3" fill="#D4AF37"/>
+        </svg>
+
+        <!-- မူရင်း Logo ပုံ -->
+        <div class="logo-frame">
+            <img src="logo - Copy.png" alt="Padauk Bookshop Logo">
         </div>
 
-        <!-- ခေါင်းစဉ်စာသား ဖြုတ်လိုက်ပါပြီ -->
-        <p class="subtitle">ပိတောက်စာအုပ်ဆိုင်မှကြိုဆိုပါတယ်</p>
+        <p class="subtitle">ပိတောက်စာအုပ်ဆိုင်မှ ကြိုဆိုပါတယ်</p>
 
-        <div class="links-container">
+        <div class="classic-divider">
+            <span class="divider-gem">❖</span>
+        </div>
+
+        <!-- ကဏ္ဍ (၁) - ဖုန်း နှင့် Viber -->
+        <div class="section-label">ဖုန်း နှင့် Viber ဆက်သွယ်ရန်</div>
+        <div class="links-group">
             
-            <!-- PHONE 1 (နှိပ်လိုက်တာနဲ့ ဖုန်းခေါ်မည့်နေရာသို့ ရောက်မည်) -->
-            <a href="tel:09768524550" class="link-btn primary-btn">
-                <i class="fa-solid fa-phone"></i> 09768524550
+            <!-- တိုက်ရိုက် ဖုန်းခေါ်ဆိုရန် (၂) ခု -->
+            <div class="grid-2">
+                <a href="tel:09768524550" class="link-btn gold-primary">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">09768524550</span>
+                            <span class="btn-sub">ဖုန်းခေါ်ဆိုရန်</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
+
+                <a href="tel:09692174568" class="link-btn gold-primary">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">09692174568</span>
+                            <span class="btn-sub">ဖုန်းခေါ်ဆိုရန်</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
+            </div>
+
+            <!-- Viber (၂) ခု -->
+            <div class="grid-2">
+                <a href="viber://chat?number=%2B959768524550" class="link-btn">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.7 1.33 5.12 3.42 6.77L4.5 21.5l3.96-1.32C9.58 20.7 10.76 21 12 21c5.52 0 10-4.03 10-9s-4.48-10-10-10zm4.35 12.83c-.22.62-1.28 1.18-1.78 1.25-.46.07-1.03.1-1.66-.1-.39-.12-.89-.29-1.53-.57-2.7-1.16-4.46-3.88-4.6-4.06-.13-.18-1.1-1.46-1.1-2.79 0-1.33.7-1.98.95-2.25.25-.27.54-.34.72-.34.18 0 .36.01.52.02.17.01.39-.06.61.46.22.54.76 1.85.83 1.98.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.54.16.27.7 1.15 1.5 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.61-.13.25.09 1.57.74 1.84.88.27.13.45.2.52.31.07.11.07.65-.15 1.27z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">Viber 1</span>
+                            <span class="btn-sub">09768524550</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
+
+                <a href="viber://chat?number=%2B959692174568" class="link-btn">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.7 1.33 5.12 3.42 6.77L4.5 21.5l3.96-1.32C9.58 20.7 10.76 21 12 21c5.52 0 10-4.03 10-9s-4.48-10-10-10zm4.35 12.83c-.22.62-1.28 1.18-1.78 1.25-.46.07-1.03.1-1.66-.1-.39-.12-.89-.29-1.53-.57-2.7-1.16-4.46-3.88-4.6-4.06-.13-.18-1.1-1.46-1.1-2.79 0-1.33.7-1.98.95-2.25.25-.27.54-.34.72-.34.18 0 .36.01.52.02.17.01.39-.06.61.46.22.54.76 1.85.83 1.98.07.13.11.29.02.47-.09.18-.13.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.28-.12.54.16.27.7 1.15 1.5 1.86 1.03.92 1.9 1.2 2.17 1.34.27.13.43.11.58-.07.16-.18.67-.78.85-1.05.18-.27.36-.22.61-.13.25.09 1.57.74 1.84.88.27.13.45.2.52.31.07.11.07.65-.15 1.27z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">Viber 2</span>
+                            <span class="btn-sub">09692174568</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ကဏ္ဍ (၂) - Telegram -->
+        <div class="section-label">Telegram မှ ဆက်သွယ်ရန်</div>
+        <div class="links-group">
+            
+            <!-- Telegram Channel -->
+            <a href="https://t.me/paduckbookshop" target="_blank" rel="noopener noreferrer" class="link-btn">
+                <div class="btn-left">
+                    <span class="icon-frame">
+                        <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                    </span>
+                    <div class="btn-info">
+                        <span class="btn-title">Telegram Channel</span>
+                        <span class="btn-sub">t.me/paduckbookshop</span>
+                    </div>
+                </div>
+                <span class="arrow-indicator">❯</span>
             </a>
 
-            <!-- PHONE 2 -->
-            <a href="tel:09956728837" class="link-btn primary-btn">
-                <i class="fa-solid fa-phone"></i> 09956728837
-            </a>
+            <!-- Telegram Accounts (၂) ခု -->
+            <div class="grid-2">
+                <a href="https://t.me/paduckbookshop01" target="_blank" rel="noopener noreferrer" class="link-btn">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">Telegram Acc 1</span>
+                            <span class="btn-sub">@paduckbookshop01</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
 
-            <!-- VIBER (နှိပ်လိုက်တာနဲ့ Viber App ထဲသို့ တိုက်ရိုက်ရောက်မည်) -->
-            <a href="viber://chat?number=+959768524550" class="link-btn">
-                <i class="fa-brands fa-viber"></i> Viber
-            </a>
+                <a href="https://t.me/Paduckbookshop2" target="_blank" rel="noopener noreferrer" class="link-btn">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">Telegram Acc 2</span>
+                            <span class="btn-sub">@Paduckbookshop2</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
+            </div>
+        </div>
 
-            <!-- TIKTOK (နှိပ်လိုက်တာနဲ့ TikTok App/Website သို့ ရောက်မည်) -->
-            <a href="https://www.tiktok.com/@your_username_here" class="link-btn">
-                <i class="fa-brands fa-tiktok"></i> TikTok
-            </a>
+        <!-- ကဏ္ဍ (၃) - TikTok နှင့် Facebook -->
+        <div class="section-label">Social Media စာမျက်နှာများ</div>
+        <div class="links-group">
+            
+            <!-- TikTok Accounts (၂) ခု -->
+            <div class="grid-2">
+                <a href="https://www.tiktok.com/@paduck.bookshop1" target="_blank" rel="noopener noreferrer" class="link-btn">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">TikTok 1</span>
+                            <span class="btn-sub">@paduck.bookshop1</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
 
-            <!-- TELEGRAM (နှိပ်လိုက်တာနဲ့ Telegram App သို့ တိုက်ရိုက်ရောက်မည်) -->
-            <a href="https://t.me/your_username_here" class="link-btn">
-                <i class="fa-brands fa-telegram"></i> Telegram
-            </a>
+                <a href="https://www.tiktok.com/@paduck.bookshop2" target="_blank" rel="noopener noreferrer" class="link-btn">
+                    <div class="btn-left">
+                        <span class="icon-frame">
+                            <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                        </span>
+                        <div class="btn-info">
+                            <span class="btn-title">TikTok 2</span>
+                            <span class="btn-sub">@paduck.bookshop2</span>
+                        </div>
+                    </div>
+                    <span class="arrow-indicator">❯</span>
+                </a>
+            </div>
 
-            <!-- FACEBOOK (နှိပ်လိုက်တာနဲ့ Facebook App/Messenger သို့ ရောက်မည်) -->
-            <a href="https://www.facebook.com/your_page_name" class="link-btn">
-                <i class="fa-brands fa-facebook-f"></i> Facebook
+            <!-- Facebook Page -->
+            <a href="https://www.facebook.com/share/1ECoDjtoPM/" target="_blank" rel="noopener noreferrer" class="link-btn">
+                <div class="btn-left">
+                    <span class="icon-frame">
+                        <svg viewBox="0 0 24 24"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z"/></svg>
+                    </span>
+                    <div class="btn-info">
+                        <span class="btn-title">Facebook Page</span>
+                        <span class="btn-sub">ပိတောက်စာအုပ်ဆိုင် တရားဝင်စာမျက်နှာ</span>
+                    </div>
+                </div>
+                <span class="arrow-indicator">❯</span>
             </a>
 
         </div>
+
+        <!-- အောက်ခြေရှိ ဂန္ထဝင်စာအုပ်နှင့် ပိတောက်ပန်း တံဆိပ် -->
+        <div class="classic-footer">
+            <svg viewBox="0 0 160 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- စာအုပ်ပုံ ရွှေရောင်လိုင်း -->
+                <path d="M35 32 Q57 22 80 32 Q103 22 125 32" stroke="#D4AF37" stroke-width="1.5" fill="none"/>
+                <path d="M30 36 Q55 26 80 36 Q105 26 130 36" stroke="#D4AF37" stroke-width="1.2" fill="none" opacity="0.7"/>
+                <!-- အလယ်ရှိ ပိတောက်ပွင့်သင်္ကေတ -->
+                <circle cx="80" cy="16" r="3" fill="#F6E29C"/>
+                <circle cx="80" cy="9" r="3.5" fill="#D4AF37"/>
+                <circle cx="86.5" cy="13.5" r="3.5" fill="#D4AF37"/>
+                <circle cx="84" cy="21" r="3.5" fill="#D4AF37"/>
+                <circle cx="76" cy="21" r="3.5" fill="#D4AF37"/>
+                <circle cx="73.5" cy="13.5" r="3.5" fill="#D4AF37"/>
+            </svg>
+        </div>
+
     </div>
 
+    <!-- ဂန္ထဝင်ဆန်စွာ ဝဲပျံကြွေကျနေသော ပိတောက်ပွင့်ဖတ်နှင့် ရွှေမှုန် Animation -->
+    <script>
+        const canvas = document.getElementById('padauk-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const petals = [];
+        const dustMotes = [];
+        const PETAL_COUNT = 28;
+        const DUST_COUNT = 30;
+
+        // ဂန္ထဝင်ရွှေဝါရောင်နှင့် ပိတောက်ဝါရောင်များ
+        const classicPetalColors = ['#E5B842', '#D4AF37', '#F3D060', '#C59B27', '#F7E199'];
+
+        class ClassicPetal {
+            constructor(initial = false) {
+                this.reset(initial);
+            }
+            reset(initial = false) {
+                this.x = Math.random() * width;
+                this.y = initial ? Math.random() * height : -25;
+                this.size = Math.random() * 6.5 + 4.5;
+                this.speedY = Math.random() * 0.75 + 0.4;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.angle = Math.random() * Math.PI * 2;
+                this.spinSpeed = (Math.random() - 0.5) * 0.018;
+                this.sway = Math.random() * Math.PI * 2;
+                this.swaySpeed = Math.random() * 0.018 + 0.008;
+                this.flip = Math.random() * Math.PI;
+                this.flipSpeed = Math.random() * 0.025 + 0.01;
+                this.color = classicPetalColors[Math.floor(Math.random() * classicPetalColors.length)];
+                this.opacity = Math.random() * 0.45 + 0.35;
+            }
+            update() {
+                this.sway += this.swaySpeed;
+                this.flip += this.flipSpeed;
+                this.x += this.speedX + Math.sin(this.sway) * 0.55;
+                this.y += this.speedY;
+                this.angle += this.spinSpeed;
+
+                if (this.y > height + 25) this.reset(false);
+                if (this.x > width + 25) this.x = -20;
+                if (this.x < -25) this.x = width + 20;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                // 3D ပုံစံ ပွင့်ဖတ်လည်နေသည့် အချိုးအစား
+                ctx.scale(1, Math.cos(this.flip) * 0.65 + 0.35);
+                ctx.globalAlpha = this.opacity;
+
+                // သဘာဝ ပိတောက်ပွင့်ဖတ်ပုံစံ (နှလုံးပုံ/ရေစက်ပုံ ကွေးညွတ်မှု)
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size);
+                ctx.bezierCurveTo(this.size * 0.9, -this.size * 0.7, this.size * 0.75, this.size * 0.6, 0, this.size);
+                ctx.bezierCurveTo(-this.size * 0.75, this.size * 0.6, -this.size * 0.9, -this.size * 0.7, 0, -this.size);
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = 'rgba(212, 175, 55, 0.3)';
+                ctx.shadowBlur = 4;
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        class GoldDust {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.radius = Math.random() * 1.6 + 0.5;
+                this.alpha = Math.random();
+                this.fadeSpeed = Math.random() * 0.012 + 0.004;
+                this.driftY = -Math.random() * 0.25 - 0.05;
+            }
+            update() {
+                this.y += this.driftY;
+                this.alpha += this.fadeSpeed;
+                if (this.alpha > 0.85 || this.alpha < 0.1) {
+                    this.fadeSpeed = -this.fadeSpeed;
+                }
+                if (this.y < -10) this.y = height + 10;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#F6E29C';
+                ctx.shadowColor = '#D4AF37';
+                ctx.shadowBlur = 6;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < PETAL_COUNT; i++) petals.push(new ClassicPetal(true));
+        for (let i = 0; i < DUST_COUNT; i++) dustMotes.push(new GoldDust());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            dustMotes.forEach(d => { d.update(); d.draw(); });
+            petals.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
 </body>
 </html>
